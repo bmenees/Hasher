@@ -1,0 +1,1 @@
+﻿The font used in AppIcon is Magneto.

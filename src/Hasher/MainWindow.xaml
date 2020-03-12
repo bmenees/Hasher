@@ -1,0 +1,65 @@
+﻿<m:ExtendedWindow x:Name="extendedWindow" x:Class="Hasher.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:m="http://menees.com/xaml"
+		xmlns:cmn="clr-namespace:Menees;assembly=Menees.Common"
+		MinHeight="300" MinWidth="600"
+		Height="{Binding MinHeight, RelativeSource={RelativeSource Self}}"
+		Width="{Binding MinWidth, RelativeSource={RelativeSource Self}}"
+		Title="{x:Static cmn:ApplicationInfo.ApplicationName}"
+		Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+		FocusManager.FocusedElement="{Binding ElementName=fileEdit}"
+		AllowDrop="True" DragEnter="Window_DragOver" DragOver="Window_DragOver" Drop="Window_Drop">
+	<Window.Resources>
+		<Thickness x:Key="DefaultMargin">4</Thickness>
+		<Style TargetType="Label">
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style TargetType="TextBox">
+			<Setter Property="MinHeight" Value="22" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+
+			<!-- http://social.msdn.microsoft.com/Forums/vstudio/en-US/a539c487-1dec-4935-b91b-c3ec252eb834/drop-file-in-a-textbox?forum=wpf -->
+			<EventSetter Event="PreviewDragEnter" Handler="Window_DragOver" />
+			<EventSetter Event="PreviewDragOver" Handler="Window_DragOver" />
+		</Style>
+		<Style TargetType="m:HyperlinkButton">
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="HorizontalAlignment" Value="Center" />
+		</Style>
+	</Window.Resources>
+	<Grid Margin="{DynamicResource DefaultMargin}" >
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition/>
+			<ColumnDefinition Width="Auto"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition MinHeight="24" Height="Auto"/>
+			<RowDefinition />
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<Label Content="_File:" Target="{Binding ElementName=fileEdit, Mode=OneWay}"/>
+		<TextBox x:Name="fileEdit" Grid.Column="1" Margin="{DynamicResource DefaultMargin}"/>
+		<Button x:Name="selectFileButton" Content="_..." Grid.Column="2" MinWidth="24" Margin="{DynamicResource DefaultMargin}" Click="SelectFile_Click" />
+		<Label Content="_Algorithm:" Grid.Row="1" Target="{Binding ElementName=algorithm, Mode=OneWay}"/>
+		<ComboBox x:Name="algorithm" Grid.Column="1" Grid.Row="1" Margin="{DynamicResource DefaultMargin}">
+			<ComboBoxItem Content="MD5 (128-bit)" Tag="System.Security.Cryptography.MD5"/>
+			<ComboBoxItem Content="RIPEMD-160 (160-bit)" Tag="System.Security.Cryptography.RIPEMD160"/>
+			<ComboBoxItem Content="SHA-1 (160-bit)" Tag="System.Security.Cryptography.SHA1" IsSelected="True"/>
+			<ComboBoxItem Content="SHA-256 (256-bit)" Tag="System.Security.Cryptography.SHA256"/>
+			<ComboBoxItem Content="SHA-384 (384-bit)" Tag="System.Security.Cryptography.SHA384"/>
+			<ComboBoxItem Content="SHA-512 (512-bit)" Tag="System.Security.Cryptography.SHA512"/>
+		</ComboBox>
+		<Label Content="_Compare To:" Grid.Row="2" Target="{Binding ElementName=compareTo, Mode=OneWay}"/>
+		<TextBox x:Name="compareTo" Grid.Column="1" Grid.Row="2" TextWrapping="Wrap" Margin="{DynamicResource DefaultMargin}" />
+		<ProgressBar x:Name="progress" Grid.Row="3" Grid.Column="1" Margin="{DynamicResource DefaultMargin}" Height="{Binding ActualHeight, ElementName=algorithm}" />
+		<RichTextBox x:Name="status" Grid.Row="4" Grid.Column="1" Margin="{DynamicResource DefaultMargin}" IsReadOnly="True"
+				Background="{Binding Background, ElementName=extendedWindow}" VerticalContentAlignment="Top"/>
+		<Button x:Name="startButton" Content="_Start" Grid.Column="1" Grid.Row="5" Margin="{DynamicResource DefaultMargin}" Width="75" Click="Start_ClickAsync" IsDefault="True" Padding="3"/>
+		<m:HyperlinkButton Content="About..." Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="{DynamicResource DefaultMargin}" Click="About_Click"/>
+	</Grid>
+</m:ExtendedWindow>
