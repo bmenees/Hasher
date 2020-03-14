@@ -48,6 +48,16 @@
 			this.saver = new WindowSaver(this);
 			this.saver.LoadSettings += this.Saver_LoadSettings;
 			this.saver.SaveSettings += this.Saver_SaveSettings;
+
+			// On .NET Core, we can't create a "RIPEMD-160 (160-bit)" instance for System.Security.Cryptography.RIPEMD160.
+			foreach (ComboBoxItem item in this.algorithm.Items.Cast<ComboBoxItem>().ToArray())
+			{
+				using HashAlgorithm hasher = HashAlgorithm.Create((string)item.Tag);
+				if (hasher == null)
+				{
+					this.algorithm.Items.Remove(item);
+				}
+			}
 		}
 
 		#endregion
@@ -135,7 +145,12 @@
 			{
 				try
 				{
-					hasher = HashAlgorithm.Create((string)item.Tag);
+					string hashName = (string)item.Tag;
+					hasher = HashAlgorithm.Create(hashName);
+					if (hasher == null)
+					{
+						AddErrors(result, $"Can't create HashAlgorithm instance for {hashName}.");
+					}
 				}
 				catch (Exception ex)
 				{

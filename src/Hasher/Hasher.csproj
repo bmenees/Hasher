@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-
 	<PropertyGroup>
 		<!-- https://docs.microsoft.com/en-us/dotnet/standard/frameworks -->
 		<TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
 		<OutputType>WinExe</OutputType>
 		<UseWPF>true</UseWPF>
 		<Description>Generates and compares hashes for a file.</Description>
-		<ApplicationIcon />
+		<ApplicationIcon>Resources\Hasher.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -14,10 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Resource Include="Resources\Error24.png" />
-	  <Resource Include="Resources\Hasher.ico" />
-	  <Resource Include="Resources\Ok24.png" />
-	  <Resource Include="Resources\Warning24.png" />
+		<Resource Include="Resources\Hasher.ico" />
+		<Resource Include="Resources\*24.png" />
 	</ItemGroup>
-
 </Project>
