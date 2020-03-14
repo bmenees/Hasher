@@ -8,8 +8,6 @@
 	using System.IO;
 	using System.Linq;
 	using System.Reflection;
-	using System.Runtime.Remoting;
-	using System.Runtime.Remoting.Metadata.W3cXsd2001;
 	using System.Security.Cryptography;
 	using System.Text;
 	using System.Threading.Tasks;
@@ -36,7 +34,7 @@
 	{
 		#region Private Data Members
 
-		private WindowSaver saver;
+		private readonly WindowSaver saver;
 		private Stream threadSafeStream;
 
 		#endregion
@@ -71,15 +69,19 @@
 
 		private static void AddImageMessage(ICollection<Block> blocks, string imageResourceName, Brush foreground, string message)
 		{
-			Image image = new Image();
-			image.Stretch = Stretch.None;
+			Image image = new Image
+			{
+				Stretch = Stretch.None,
+			};
 			string imageUri = $"pack://application:,,,/{typeof(MainWindow).Assembly.FullName};component/Resources/{imageResourceName}24.png";
 			image.Source = new BitmapImage(new Uri(imageUri, UriKind.Absolute));
 			Paragraph paragraph = new Paragraph();
 			paragraph.Inlines.Add(new InlineUIContainer(image));
-			Run messageRun = new Run(' ' + message);
-			messageRun.Foreground = foreground;
-			messageRun.BaselineAlignment = BaselineAlignment.Center;
+			Run messageRun = new Run(' ' + message)
+			{
+				Foreground = foreground,
+				BaselineAlignment = BaselineAlignment.Center,
+			};
 			paragraph.Inlines.Add(messageRun);
 			blocks.Add(paragraph);
 		}
@@ -125,8 +127,7 @@
 			}
 
 			hasher = null;
-			ComboBoxItem item = this.algorithm.SelectedItem as ComboBoxItem;
-			if (item == null)
+			if (!(this.algorithm.SelectedItem is ComboBoxItem item))
 			{
 				AddErrors(result, "An algorithm must be selected.");
 			}
@@ -147,8 +148,7 @@
 			{
 				try
 				{
-					SoapHexBinary binary = SoapHexBinary.Parse(this.compareTo.Text);
-					compareHash = binary.Value;
+					compareHash = ConvertUtility.FromHex(this.compareTo.Text, true);
 					const int BitsPerByte = 8;
 					int compareHashSize = BitsPerByte * compareHash.Length;
 					if (hasher != null && hasher.HashSize != compareHashSize)
@@ -160,9 +160,9 @@
 							$"Required length: {hasher.HashSize} bits");
 					}
 				}
-				catch (RemotingException)
+				catch (ArgumentException ex)
 				{
-					AddErrors(result, "Unable to parse the Compare To hash value as a sequence of hexadecimal digit pairs.");
+					AddErrors(result, "Unable to parse the Compare To hash value as a sequence of hexadecimal digit pairs.", ex.Message);
 				}
 			}
 
@@ -173,10 +173,7 @@
 		{
 			FlowDocument document = new FlowDocument();
 			this.status.Document = document;
-			string fileName;
-			HashAlgorithm hasher;
-			byte[] compareHash;
-			List<Block> messages = this.Validate(out fileName, out hasher, out compareHash);
+			List<Block> messages = this.Validate(out string fileName, out HashAlgorithm hasher, out byte[] compareHash);
 			if (messages.Count > 0)
 			{
 				document.Blocks.AddRange(messages);
@@ -188,42 +185,43 @@
 				DispatcherTimer timer = new DispatcherTimer();
 				try
 				{
-					using (Stream stream = Stream.Synchronized(File.OpenRead(fileName)))
+					using FileStream unsynchronizedStream = File.OpenRead(fileName);
+					using Stream stream = Stream.Synchronized(unsynchronizedStream);
+
+					this.threadSafeStream = stream;
+					this.startButton.Content = "Ca_ncel";
+					this.startButton.IsCancel = true;
+					long streamLength = stream.Length;
+					timer.Tick += (s, e) => this.progress.Value = streamLength != 0 ? 100 * (stream.Position / (double)streamLength) : 0;
+					timer.Interval = TimeSpan.FromSeconds(1);
+					timer.IsEnabled = true;
+					EnableControls(controls, false);
+
+					byte[] hash = await Task.Run(() => hasher.ComputeHash(stream)).ConfigureAwait(true);
+					if (this.threadSafeStream != null)
 					{
-						this.threadSafeStream = stream;
-						this.startButton.Content = "Ca_ncel";
-						this.startButton.IsCancel = true;
-						long streamLength = stream.Length;
-						timer.Tick += (s, e) => this.progress.Value = streamLength != 0 ? 100 * (stream.Position / (double)streamLength) : 0;
-						timer.Interval = TimeSpan.FromSeconds(1);
-						timer.IsEnabled = true;
-						EnableControls(controls, false);
+						AddMessages(messages, ConvertUtility.ToHex(hash));
 
-						byte[] hash = await Task.Run(() => hasher.ComputeHash(stream));
-						if (this.threadSafeStream != null)
+						if (compareHash != null)
 						{
-							SoapHexBinary binary = new SoapHexBinary(hash);
-							AddMessages(messages, binary.ToString());
-
-							if (compareHash != null)
+							if (hash.SequenceEqual(compareHash))
 							{
-								if (hash.SequenceEqual(compareHash))
-								{
-									AddImageMessage(messages, "Ok", Brushes.Green, "EQUAL: The computed hash and the Compare To values match.");
-								}
-								else
-								{
-									AddImageMessage(messages, "Error", Brushes.Red, "NOT EQUAL: The computed hash and the Compare To values do NOT match.");
-								}
+								AddImageMessage(messages, "Ok", Brushes.Green, "EQUAL: The computed hash and the Compare To values match.");
+							}
+							else
+							{
+								AddImageMessage(messages, "Error", Brushes.Red, "NOT EQUAL: The computed hash and the Compare To values do NOT match.");
 							}
 						}
-						else
-						{
-							AddImageMessage(messages, "Warning", Brushes.DarkGoldenrod, "Canceled.");
-						}
+					}
+					else
+					{
+						AddImageMessage(messages, "Warning", Brushes.DarkGoldenrod, "Canceled.");
 					}
 				}
+#pragma warning disable CA1031 // Do not catch general exception types. This is my top-level UI handler.
 				catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
 				{
 					AddErrors(messages, ex.Message);
 				}
@@ -236,8 +234,12 @@
 					this.startButton.IsCancel = false;
 					EnableControls(controls, true);
 					document.Blocks.AddRange(messages);
+					hasher?.Dispose();
+					hasher = null;
 				}
 			}
+
+			hasher?.Dispose();
 		}
 
 		private void Cancel()
@@ -278,10 +280,12 @@
 
 		private void SelectFile_Click(object sender, RoutedEventArgs e)
 		{
-			OpenFileDialog dialog = new OpenFileDialog();
-			dialog.Title = "Select File";
-			dialog.FileName = this.fileEdit.Text;
-			dialog.Filter = "All Files (*.*)|*.*";
+			OpenFileDialog dialog = new OpenFileDialog
+			{
+				Title = "Select File",
+				FileName = this.fileEdit.Text,
+				Filter = "All Files (*.*)|*.*",
+			};
 
 			if (dialog.ShowDialog(this).GetValueOrDefault())
 			{
@@ -297,11 +301,13 @@
 			}
 			else
 			{
-				await this.StartAsync();
+				await this.StartAsync().ConfigureAwait(true);
 			}
 		}
 
+#pragma warning disable CC0091 // Use static method. Designer likes instance methods.
 		private void Window_DragOver(object sender, DragEventArgs e)
+#pragma warning restore CC0091 // Use static method
 		{
 			// Note: This handler is also used for DragEnter events to avoid a brief cursor flicker
 			// when a drag enters each control.

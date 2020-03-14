@@ -1,10 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <Description>Generates and compares hashes for a file.</Description>
-  </PropertyGroup>
+	<PropertyGroup>
+		<!-- https://docs.microsoft.com/en-us/dotnet/standard/frameworks -->
+		<TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
+		<OutputType>WinExe</OutputType>
+		<UseWPF>true</UseWPF>
+		<Description>Generates and compares hashes for a file.</Description>
+		<ApplicationIcon />
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Menees.Windows.Presentation" Version="4.9.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Resources\Error24.png" />
+	  <Resource Include="Resources\Hasher.ico" />
+	  <Resource Include="Resources\Ok24.png" />
+	  <Resource Include="Resources\Warning24.png" />
+	</ItemGroup>
 
 </Project>

@@ -22,7 +22,7 @@
 
 		public App()
 		{
-			WindowsUtility.InitializeApplication("Hasher", null);
+			WindowsUtility.InitializeApplication(nameof(Hasher), null);
 		}
 
 		#endregion
