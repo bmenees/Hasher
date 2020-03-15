@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 	<PropertyGroup>
 		<!-- https://docs.microsoft.com/en-us/dotnet/standard/frameworks -->
+		<!-- The code compiles with netcoreapp3.1, but the XAML designer gets XDG0062 errors. Those are supposedly fixed in a VS preview.
+		https://developercommunity.visualstudio.com/content/problem/836014/bogus-xdg0062-on-use-of-eventsetter-in-net-core-30.html -->
 		<TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
 		<OutputType>WinExe</OutputType>
 		<UseWPF>true</UseWPF>
@@ -9,7 +11,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Menees.Windows.Presentation" Version="4.9.0" />
+		<PackageReference Include="Menees.Windows.Presentation" Version="4.9.1" />
 	</ItemGroup>
 
 	<ItemGroup>

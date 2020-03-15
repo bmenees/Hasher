@@ -16,8 +16,6 @@
 		<AssemblyOriginatorKeyFile>../Hasher.snk</AssemblyOriginatorKeyFile>
 
 		<!-- Make the assembly, file, and NuGet package versions the same. -->
-		<AssemblyVersion>1.0.3.0</AssemblyVersion>
-		<FileVersion>1.0.3.0</FileVersion>
 		<Version>1.0.3</Version>
 	</PropertyGroup>
 
