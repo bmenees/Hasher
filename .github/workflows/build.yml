@@ -17,7 +17,9 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.0
       
     - name: Build everything
-      run: .\Build.cmd -build $true
+      run: |
+        & .\eng\build.ps1 -build $true
       
     - name: Test artifact publishing
-      run: .\Build.cmd -build $false -publish $true
+      run: |
+        & .\eng\build.ps1 -build $false -publish $true
