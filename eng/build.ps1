@@ -11,6 +11,7 @@ $ErrorActionPreference = "Stop"
 $scriptPath = [IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 $repoPath = Resolve-Path (Join-Path $scriptPath '..')
 $slnPath = Get-ChildItem -Path $repoPath -Filter *.sln
+$productName = [IO.Path]::GetFileNameWithoutExtension($slnPath)
 
 function GetXmlPropertyValue($fileName, $propertyName)
 {
@@ -50,17 +51,18 @@ if ($publish)
             if ($configuration -like '*Release*')
             {
                 Write-Host "Publishing version $version $configuration profiles to $artifactsPath"
-                $profiles = @(Get-ChildItem -r "$repoPath\src\Hasher\Properties\PublishProfiles\*.pubxml")
+                $profiles = @(Get-ChildItem -r "$repoPath\src\$productName\Properties\PublishProfiles\*.pubxml")
                 foreach ($profile in $profiles)
                 {
-                    Write-Host "Publishing $profile"
+                    $profileName = [IO.Path]::GetFileNameWithoutExtension($profile)
+                    Write-Host "Publishing $profileName"
 
                     # The Publish target in "C:\Program Files\dotnet\sdk\3.1.101\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.Sdk.CrossTargeting.targets"
                     # throws an exception if the .csproj uses <TargetFrameworks>. We have to override that and force a specific <TargetFramework> instead.
                     $targetFramework = GetXmlPropertyValue $profile 'TargetFramework'
-                    msbuild $slnPath /t:Publish /p:PublishProfile=$profile /p:TargetFramework=$targetFramework /v:$msBuildVerbosity /nologo
+                    msbuild $slnPath /t:Publish /p:PublishProfile=$profileName /p:TargetFramework=$targetFramework /v:$msBuildVerbosity /nologo
 
-                    # TODO: Produce zips like Hasher-Portable-1.0.3-Core.zip and Hasher-Portable-1.0.3-Framework.zip
+                    Compress-Archive -Path "$artifactsPath\$profileName\*" -DestinationPath "$artifactsPath\$productName-Portable-$version-$profileName.zip"
                     $published = $true
                 }
             }
