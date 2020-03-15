@@ -1,3 +1,5 @@
+![windows build](https://github.com/bmenees/Hasher/workflows/windows%20build/badge.svg)
+
 # Hasher
 
 This program computes a [hash](https://en.wikipedia.org/wiki/Hash_function)
