@@ -1,4 +1,4 @@
-![windows build](https://github.com/bmenees/Hasher/workflows/windows%20build/badge.svg)
+![windows build](https://github.com/menees/Hasher/workflows/windows%20build/badge.svg)
 
 # Hasher
 
