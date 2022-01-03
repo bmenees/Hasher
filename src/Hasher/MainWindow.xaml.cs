@@ -35,7 +35,7 @@
 		#region Private Data Members
 
 		private readonly WindowSaver saver;
-		private Stream threadSafeStream;
+		private Stream? threadSafeStream;
 
 		#endregion
 
@@ -52,7 +52,7 @@
 			// On .NET Core, we can't create a "RIPEMD-160 (160-bit)" instance for System.Security.Cryptography.RIPEMD160.
 			foreach (ComboBoxItem item in this.algorithm.Items.Cast<ComboBoxItem>().ToArray())
 			{
-				using HashAlgorithm hasher = HashAlgorithm.Create((string)item.Tag);
+				using HashAlgorithm? hasher = HashAlgorithm.Create((string)item.Tag);
 				if (hasher == null)
 				{
 					this.algorithm.Items.Remove(item);
@@ -79,15 +79,15 @@
 
 		private static void AddImageMessage(ICollection<Block> blocks, string imageResourceName, Brush foreground, string message)
 		{
-			Image image = new Image
+			Image image = new()
 			{
 				Stretch = Stretch.None,
 			};
 			string imageUri = $"pack://application:,,,/{typeof(MainWindow).Assembly.FullName};component/Resources/{imageResourceName}24.png";
 			image.Source = new BitmapImage(new Uri(imageUri, UriKind.Absolute));
-			Paragraph paragraph = new Paragraph();
+			Paragraph paragraph = new();
 			paragraph.Inlines.Add(new InlineUIContainer(image));
-			Run messageRun = new Run(' ' + message)
+			Run messageRun = new(' ' + message)
 			{
 				Foreground = foreground,
 				BaselineAlignment = BaselineAlignment.Center,
@@ -101,9 +101,9 @@
 			AddMessages(blocks, null, messages);
 		}
 
-		private static void AddMessages(ICollection<Block> blocks, Brush foreground, params string[] messages)
+		private static void AddMessages(ICollection<Block> blocks, Brush? foreground, params string[] messages)
 		{
-			Paragraph paragraph = new Paragraph();
+			Paragraph paragraph = new();
 			if (foreground != null)
 			{
 				paragraph.Foreground = Brushes.Red;
@@ -126,9 +126,9 @@
 			"Microsoft.Design",
 			"CA1031:DoNotCatchGeneralExceptionTypes",
 			Justification = "HashAlgorithm.Create doesn't document its exception types, and this is in a top-level validation method.")]
-		private List<Block> Validate(out string fileName, out HashAlgorithm hasher, out byte[] compareHash)
+		private List<Block> Validate(out string fileName, out HashAlgorithm? hasher, out byte[]? compareHash)
 		{
-			List<Block> result = new List<Block>();
+			List<Block> result = new();
 
 			fileName = this.fileEdit.Text.Trim();
 			if (!File.Exists(fileName))
@@ -137,7 +137,7 @@
 			}
 
 			hasher = null;
-			if (!(this.algorithm.SelectedItem is ComboBoxItem item))
+			if (this.algorithm.SelectedItem is not ComboBoxItem item)
 			{
 				AddErrors(result, "An algorithm must be selected.");
 			}
@@ -186,9 +186,9 @@
 
 		private async Task StartAsync()
 		{
-			FlowDocument document = new FlowDocument();
+			FlowDocument document = new();
 			this.status.Document = document;
-			List<Block> messages = this.Validate(out string fileName, out HashAlgorithm hasher, out byte[] compareHash);
+			List<Block> messages = this.Validate(out string fileName, out HashAlgorithm? hasher, out byte[]? compareHash);
 			if (messages.Count > 0)
 			{
 				document.Blocks.AddRange(messages);
@@ -197,7 +197,7 @@
 			{
 				Control[] controls = new Control[] { this.fileEdit, this.selectFileButton, this.algorithm, this.compareTo };
 				object originalButtonContent = this.startButton.Content;
-				DispatcherTimer timer = new DispatcherTimer();
+				DispatcherTimer timer = new();
 				try
 				{
 					using FileStream unsynchronizedStream = File.OpenRead(fileName);
@@ -212,8 +212,8 @@
 					timer.IsEnabled = true;
 					EnableControls(controls, false);
 
-					byte[] hash = await Task.Run(() => hasher.ComputeHash(stream)).ConfigureAwait(true);
-					if (this.threadSafeStream != null)
+					byte[]? hash = await Task.Run(() => hasher?.ComputeHash(stream)).ConfigureAwait(true);
+					if (hash != null && this.threadSafeStream != null)
 					{
 						AddMessages(messages, ConvertUtility.ToHex(hash));
 
@@ -277,7 +277,7 @@
 			WindowsUtility.ShowAboutBox(this, Assembly.GetExecutingAssembly());
 		}
 
-		private void Saver_LoadSettings(object sender, SettingsEventArgs e)
+		private void Saver_LoadSettings(object? sender, SettingsEventArgs e)
 		{
 			var settings = e.SettingsNode;
 			this.fileEdit.Text = settings.GetValue("File", string.Empty);
@@ -285,7 +285,7 @@
 			this.algorithm.Text = settings.GetValue("Algorithm", this.algorithm.Text);
 		}
 
-		private void Saver_SaveSettings(object sender, SettingsEventArgs e)
+		private void Saver_SaveSettings(object? sender, SettingsEventArgs e)
 		{
 			var settings = e.SettingsNode;
 			settings.SetValue("File", this.fileEdit.Text);
@@ -293,9 +293,9 @@
 			settings.SetValue("Algorithm", this.algorithm.Text);
 		}
 
-		private void SelectFile_Click(object sender, RoutedEventArgs e)
+		private void SelectFile_Click(object? sender, RoutedEventArgs e)
 		{
-			OpenFileDialog dialog = new OpenFileDialog
+			OpenFileDialog dialog = new()
 			{
 				Title = "Select File",
 				FileName = this.fileEdit.Text,

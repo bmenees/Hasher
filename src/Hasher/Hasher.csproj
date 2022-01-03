@@ -1,7 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 	<PropertyGroup>
-		<!-- https://docs.microsoft.com/en-us/dotnet/standard/frameworks -->
-		<TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
 		<OutputType>WinExe</OutputType>
 		<UseWPF>true</UseWPF>
 		<Description>Generates and compares hashes for a file.</Description>
@@ -9,7 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Menees.Windows.Presentation" Version="4.9.10" />
+		<PackageReference Include="Menees.Windows.Presentation" Version="5.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
