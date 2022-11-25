@@ -7,11 +7,23 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Menees.Windows.Presentation" Version="5.0.3" />
+		<PackageReference Include="Menees.Windows.Presentation" Version="5.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Resource Include="Resources\Hasher.ico" />
 		<Resource Include="Resources\*24.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="..\..\eng\Install.bat" Link="Install.bat">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="..\..\eng\SetupHasher.ps1" Link="SetupHasher.ps1">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="..\..\eng\Uninstall.bat" Link="Uninstall.bat">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 </Project>

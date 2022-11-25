@@ -32,7 +32,6 @@
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto"/>
 			<ColumnDefinition/>
-			<ColumnDefinition Width="Auto"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
@@ -43,23 +42,29 @@
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 		<Label Content="_File:" Target="{Binding ElementName=fileEdit, Mode=OneWay}"/>
-		<TextBox x:Name="fileEdit" Grid.Column="1" Margin="{DynamicResource DefaultMargin}"/>
-		<Button x:Name="selectFileButton" Content="_..." Grid.Column="2" MinWidth="24" Margin="{DynamicResource DefaultMargin}" Click="SelectFile_Click" />
+        <Grid Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="fileEdit" Margin="{DynamicResource DefaultMargin}"/>
+            <Button x:Name="selectFileButton" Grid.Column="1" Content="_..." MinWidth="24" Margin="{DynamicResource DefaultMargin}" Click="SelectFile_Click" />
+        </Grid>
 		<Label Content="_Algorithm:" Grid.Row="1" Target="{Binding ElementName=algorithm, Mode=OneWay}"/>
 		<ComboBox x:Name="algorithm" Grid.Column="1" Grid.Row="1" Margin="{DynamicResource DefaultMargin}">
-			<ComboBoxItem Content="MD5 (128-bit)" Tag="System.Security.Cryptography.MD5"/>
-			<ComboBoxItem Content="RIPEMD-160 (160-bit)" Tag="System.Security.Cryptography.RIPEMD160"/>
-			<ComboBoxItem Content="SHA-1 (160-bit)" Tag="System.Security.Cryptography.SHA1" IsSelected="True"/>
-			<ComboBoxItem Content="SHA-256 (256-bit)" Tag="System.Security.Cryptography.SHA256"/>
-			<ComboBoxItem Content="SHA-384 (384-bit)" Tag="System.Security.Cryptography.SHA384"/>
-			<ComboBoxItem Content="SHA-512 (512-bit)" Tag="System.Security.Cryptography.SHA512"/>
-		</ComboBox>
+            <ComboBoxItem Content="MD5 (128-bit)" Tag="System.Security.Cryptography.MD5"/>
+            <ComboBoxItem Content="RIPEMD-160 (160-bit)" Tag="System.Security.Cryptography.RIPEMD160"/>
+            <ComboBoxItem Content="SHA-1 (160-bit)" Tag="System.Security.Cryptography.SHA1" IsSelected="True"/>
+            <ComboBoxItem Content="SHA-256 (256-bit)" Tag="System.Security.Cryptography.SHA256"/>
+            <ComboBoxItem Content="SHA-384 (384-bit)" Tag="System.Security.Cryptography.SHA384"/>
+            <ComboBoxItem Content="SHA-512 (512-bit)" Tag="System.Security.Cryptography.SHA512"/>
+        </ComboBox>
 		<Label Content="_Compare To:" Grid.Row="2" Target="{Binding ElementName=compareTo, Mode=OneWay}"/>
 		<TextBox x:Name="compareTo" Grid.Column="1" Grid.Row="2" TextWrapping="Wrap" Margin="{DynamicResource DefaultMargin}" />
 		<ProgressBar x:Name="progress" Grid.Row="3" Grid.Column="1" Margin="{DynamicResource DefaultMargin}" Height="{Binding ActualHeight, ElementName=algorithm}" />
 		<RichTextBox x:Name="status" Grid.Row="4" Grid.Column="1" Margin="{DynamicResource DefaultMargin}" IsReadOnly="True"
-				Background="{Binding Background, ElementName=extendedWindow}" VerticalContentAlignment="Top"/>
-		<Button x:Name="startButton" Content="_Start" Grid.Column="1" Grid.Row="5" Margin="{DynamicResource DefaultMargin}" Width="75" Click="Start_ClickAsync" IsDefault="True" Padding="3"/>
-		<m:HyperlinkButton Content="About..." Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="{DynamicResource DefaultMargin}" Click="About_Click"/>
+				Background="{Binding Background, ElementName=extendedWindow}" VerticalContentAlignment="Top" />
+		<Button x:Name="startButton" Content="_Start" Grid.Column="1" Grid.Row="5" Margin="{DynamicResource DefaultMargin}" Width="75" Click="Start_ClickAsync" IsDefault="True" Padding="3" />
+		<m:HyperlinkButton Content="About..." Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" Margin="{DynamicResource DefaultMargin}" Click="About_Click"/>
 	</Grid>
 </m:ExtendedWindow>
