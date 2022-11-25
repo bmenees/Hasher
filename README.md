@@ -6,9 +6,11 @@ This program computes a [hash](https://en.wikipedia.org/wiki/Hash_function)
 checksum for a file and optionally compares it to a known hash value.
 It supports several industry standard hash algorithms such as MD5, SHA-1, and SHA-256.
 
-Hasher is a WPF app that runs on Windows only, and there are builds for .NET Framework 4.5
-and .NET Core 3.1. There is no Hasher installer. All releases are "portable", so you can run
+Hasher is a WPF app that runs on Windows only, and there are builds for .NET Framework 4.8
+and .NET 6. There is no Hasher installer. All releases are "portable", so you can run
 them after extracting them to a folder (assuming the required .NET runtime is installed).
+There are optional install.bat and uinstall.bat scripts to add or remove Hasher
+shortcuts in Windows File Explorer's "Send To" context menu.
 
 ![Hasher](http://www.menees.com/Images/Hasher.png)
 
