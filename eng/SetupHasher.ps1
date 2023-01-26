@@ -78,7 +78,7 @@ function CreateShortcuts([string]$sendToPath, [string]$hasherExePath)
         $arguments = "/algorithm $algorithm"
         if ($autoStart)
         {
-            $arguments += " /compareTo Empty /start"
+            $arguments += " /compareTo Clipboard /start"
         }
 
         # When invoked by the shell's Send To handler, an additional %L argument

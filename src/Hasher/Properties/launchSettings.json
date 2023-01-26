@@ -1,8 +1,19 @@
 {
   "profiles": {
-    "Hasher": {
+    "Hasher (No Args)": {
+      "commandName": "Project"
+    },
+    "Hasher Sha384 Hash": {
       "commandName": "Project",
       "commandLineArgs": "/start C:\\Dev\\Repos\\Hasher\\src\\Hasher\\bin\\Debug\\net48\\Menees.Common.dll \r\n/algorithm SHA384 /compareTo 8228D91A4C0DF6A0B67FEBF983147CA910DEB70924102D68CE7F2F5B92C53DF181C166A0113BB98BFDDD4295604E6D9D"
+    },
+    "Hasher Sha384 Clipboard": {
+      "commandName": "Project",
+      "commandLineArgs": "/start C:\\Dev\\Repos\\Hasher\\src\\Hasher\\bin\\Debug\\net48\\Menees.Common.dll \r\n/algorithm SHA384 /compareTo Clipboard"
+    },
+    "Hasher Sha384 Empty": {
+      "commandName": "Project",
+      "commandLineArgs": "/start C:\\Dev\\Repos\\Hasher\\src\\Hasher\\bin\\Debug\\net48\\Menees.Common.dll \r\n/algorithm SHA384 /compareTo Empty"
     }
   }
 }

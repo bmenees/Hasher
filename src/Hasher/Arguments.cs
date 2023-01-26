@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using Menees;
 using Menees.Shell;
 
@@ -16,12 +17,18 @@ using Menees.Shell;
 
 internal class Arguments
 {
+	#region Private Data Members
+
+	private static readonly string SpecialCompares = string.Join("|", Enum.GetNames(typeof(CompareToSpecial)).OrderBy(n => n));
+
+	#endregion
+
 	#region Constructors
 
 	public Arguments(string[] args)
 	{
 		CommandLine commandLine = new CommandLine(false);
-		commandLine.AddHeader("Usage: Hasher.exe [fileName] [/algorithm typeName] [/compareTo hashValue] [/start]");
+		commandLine.AddHeader($"Usage: Hasher.exe [fileName] [/algorithm typeName] [/compareTo hashValue|{SpecialCompares}] [/start]");
 
 		commandLine.AddValueHandler(
 			(file, errors) =>
@@ -54,12 +61,28 @@ internal class Arguments
 			// We can't ignore abstract types because all main types are abstract (e.g., MD5, SHA*).
 		});
 
-		commandLine.AddSwitch(nameof(this.CompareTo), "The hash value to compare to.", (compareTo, errors) =>
-		{
-			// When using Send To shortcuts with /start, we need to pass in an empty CompareTo value because
-			// we don't want to compare to any previous value that was saved to the .stgx file.
-			this.CompareTo = compareTo.Equals(nameof(string.Empty), StringComparison.OrdinalIgnoreCase) ? string.Empty : compareTo;
-		});
+		commandLine.AddSwitch(
+			nameof(this.CompareTo),
+			$"A hash value to compare to or one of: {SpecialCompares}",
+			(compareTo, errors) =>
+			{
+				// When using Send To shortcuts with /start, we can pass some special non-hash values:
+				//   "Empty":  don't compare to any previous value that was saved to the .stgx file.
+				//   "Clipboard": compare to the hex value currently on the clipboard.
+				// Enum.TryParse would allow integers like 0 or 1, but we'll ignore them since they're ambigous with hex values.
+				if (!Enum.TryParse(compareTo, out CompareToSpecial special) || int.TryParse(compareTo, out _))
+				{
+					this.CompareTo = compareTo;
+				}
+				else
+				{
+					this.CompareTo = special switch
+					{
+						CompareToSpecial.Clipboard => TryGetClipboardHashValue(),
+						_ => string.Empty,
+					};
+				}
+			});
 
 		commandLine.AddSwitch(nameof(this.Start), "Whether to begin hashing the file automatically at startup.", start => this.Start = start);
 
@@ -69,6 +92,17 @@ internal class Arguments
 			this.ParseMessage = commandLine.CreateMessage();
 			this.IsHelpMessage = parseResult == CommandLineParseResult.HelpRequested;
 		}
+	}
+
+	#endregion
+
+	#region Private Enums
+
+	private enum CompareToSpecial
+	{
+		// Don't use a "None" member since all these names are shown in the help.
+		Empty,
+		Clipboard,
 	}
 
 	#endregion
@@ -86,6 +120,23 @@ internal class Arguments
 	public string? ParseMessage { get; }
 
 	public bool IsHelpMessage { get; }
+
+	#endregion
+
+	#region Private Methods
+
+	private static string TryGetClipboardHashValue()
+	{
+		string result = Clipboard.GetText();
+
+		byte[]? bytes = ConvertUtility.FromHex(result, false);
+		if (bytes == null)
+		{
+			result = string.Empty;
+		}
+
+		return result;
+	}
 
 	#endregion
 }
